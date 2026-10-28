@@ -9,6 +9,8 @@ Troubleshooting cheat sheets:
 | Kubernetes | `Kubernetes/Generic/kubernetes.md` |
 | Linux | `Linux/Generic/linux.md` |
 | vSphere | `vSphere/Generic/vsphere.md` |
+| Rancher | `Rancher/Generic/rancher.md` |
+| RKE | `RKE/Generic/rke.md` |
 | Veeam | `Veeam/Generic/veeam.md` |
 | Windows | `Windows/Generic/windows.md` |
 | Others (Docker, Nginx, DBs, Terraform, Ansible, cloud-init, …) | `Others/Generic/others.md` |
