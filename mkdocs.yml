@@ -1,0 +1,49 @@
+site_name: Cheat-Sheets
+site_description: Troubleshooting cheat sheets — Linux, vSphere, Kubernetes, Ceph, RKE/Rancher, Windows, Veeam and more
+site_url: https://davoudteimouri.github.io/Cheat-Sheets/
+
+docs_dir: docs
+repo_url: https://github.com/DavoudTeimouri/Cheat-Sheets
+edit_uri: blob/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+  features:
+    - content.code.annotate
+    - content.tabs.link
+    - navigation.instant
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - toc.follow
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Linux: Linux/linux.md
+  - vSphere: vSphere/vsphere.md
+  - Kubernetes: Kubernetes/kubernetes.md
+  - K8s add-ons: K8s-Addons/k8s-addons.md
+  - Ceph: Ceph/ceph.md
+  - Rancher: Rancher/rancher.md
+  - RKE: RKE/rke.md
+  - Windows: Windows/windows.md
+  - Veeam: Veeam/veeam.md
+  - Others: Others/others.md
