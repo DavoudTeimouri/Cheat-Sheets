@@ -1,0 +1,1 @@
+../../../Windows/SMB/access-denied.md

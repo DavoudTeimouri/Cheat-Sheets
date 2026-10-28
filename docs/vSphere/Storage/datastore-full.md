@@ -1,0 +1,1 @@
+../../../vSphere/Storage/datastore-full.md

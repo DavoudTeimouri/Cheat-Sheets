@@ -1,0 +1,1 @@
+../../../Rancher/Cluster/registration.md
