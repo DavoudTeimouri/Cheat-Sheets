@@ -1,5 +1,6 @@
 # Veeam Backup & Replication Troubleshooting
 
+**Category:** Data Protection
 ## 1. Backup job fails: "Failed to create snapshot" / VMware snapshot issues
 
 - Snapshot consolidation needed: consolidate in vCenter (Right-click VM > Snapshot > Consolidate), then rerun job

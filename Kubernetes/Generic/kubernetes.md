@@ -1,5 +1,6 @@
 # Kubernetes Troubleshooting
 
+**Category:** Cloud-Native
 ## 1. Pod in CrashLoopBackOff / OOMKilled
 
 ```bash

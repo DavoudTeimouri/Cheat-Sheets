@@ -8,17 +8,19 @@
 
 Use the **New troubleshooting entry** issue template on this repo, or send a PR adding `<Topic>/Generic/<topic>.md`. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Sheets
+## Sheets by category
 
-| Ceph | `Ceph/Generic/ceph.md` |
-| K8s add-ons | `K8s-Addons/Generic/k8s-addons.md` |
-| Kubernetes | `Kubernetes/Generic/kubernetes.md` |
-| Linux | `Linux/Generic/linux.md` |
-| vSphere | `vSphere/Generic/vsphere.md` |
-| Rancher | `Rancher/Generic/rancher.md` |
-| RKE | `RKE/Generic/rke.md` |
-| Veeam | `Veeam/Generic/veeam.md` |
-| Windows | `Windows/Generic/windows.md` |
-| Others (Docker, Nginx, DBs, Terraform, Ansible, cloud-init, …) | `Others/Generic/others.md` |
+| Category | Topic | Sheet |
+|----------|-------|-------|
+| Cloud-Native | Kubernetes | `Kubernetes/Generic/kubernetes.md` |
+| Cloud-Native | K8s add-ons | `K8s-Addons/Generic/k8s-addons.md` |
+| Cloud-Native | Rancher | `Rancher/Generic/rancher.md` |
+| Cloud-Native | RKE | `RKE/Generic/rke.md` |
+| Virtualization | vSphere | `vSphere/Generic/vsphere.md` |
+| Storage | Ceph | `Ceph/Generic/ceph.md` |
+| Operating System | Linux | `Linux/Generic/linux.md` |
+| Operating System | Windows | `Windows/Generic/windows.md` |
+| Data Protection | Veeam | `Veeam/Generic/veeam.md` |
+| Infrastructure & DevOps | Others | `Others/Generic/others.md` |
 
-Convention: `<Topic>/Generic/<topic>.md` — one sheet per topic, symptom → cause → fix, with commands.
+Each topic has an overview page (`<Topic>/Generic/<topic>.md`) plus detailed subgroup sheets (`<Topic>/<Subgroup>/<subtopic>.md`). Every sheet carries its category and follows: symptom → likely cause → fix (commands), log locations, quick self-check, and a `ponytail:` scope ceiling.

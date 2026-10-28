@@ -1,5 +1,6 @@
 # Others Troubleshooting
 
+**Category:** Infrastructure & DevOps
 ## 1. Docker / containers
 
 ```bash

@@ -37,13 +37,66 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Linux: Linux/linux.md
-  - vSphere: vSphere/vsphere.md
-  - Kubernetes: Kubernetes/kubernetes.md
-  - K8s add-ons: K8s-Addons/k8s-addons.md
-  - Ceph: Ceph/ceph.md
-  - Rancher: Rancher/rancher.md
-  - RKE: RKE/rke.md
-  - Windows: Windows/windows.md
-  - Veeam: Veeam/veeam.md
-  - Others: Others/others.md
+  - Cloud-Native:
+      - Kubernetes:
+          - Overview: Kubernetes/kubernetes.md
+          - Pods: Kubernetes/Pods/crashloop.md
+          - Networking: Kubernetes/Networking/service.md
+          - Storage: Kubernetes/Storage/pvc.md
+          - Nodes: Kubernetes/Nodes/notready.md
+          - Control plane: Kubernetes/Control-plane/etcd.md
+      - K8s add-ons: K8s-Addons/k8s-addons.md
+      - Rancher:
+          - Overview: Rancher/rancher.md
+          - Server: Rancher/Server/startup.md
+          - Cluster: Rancher/Cluster/registration.md
+          - Auth: Rancher/Auth/saml.md
+      - RKE:
+          - Overview: RKE/rke.md
+          - Install: RKE/Install/ssh-fail.md
+          - Nodes: RKE/Nodes/notready.md
+          - Etcd: RKE/Etcd/snapshot.md
+  - Virtualization:
+      - vSphere:
+          - Overview: vSphere/vsphere.md
+          - ESXi: vSphere/ESXi/host-down.md
+          - VM: vSphere/VM/power-on.md
+          - vCenter: vSphere/vCenter/server-down.md
+          - Storage: vSphere/Storage/datastore-full.md
+  - Storage:
+      - Ceph:
+          - Overview: Ceph/ceph.md
+          - Monitors: Ceph/Mon/mon-down.md
+          - OSDs: Ceph/OSD/osd-down.md
+          - RBD: Ceph/RBD/rbd-map.md
+          - CephFS: Ceph/MDS/mds-down.md
+          - RGW: Ceph/RGW/rgw-down.md
+  - Operating System:
+      - Linux:
+          - Overview: Linux/linux.md
+          - Network: Linux/Network/ssh.md
+          - Storage: Linux/Storage/disk-full.md
+          - Memory: Linux/Memory/oom.md
+          - Systemd: Linux/Systemd/service-fails.md
+          - Security: Linux/Security/permissions.md
+          - Packages: Linux/Packages/apt-stuck.md
+      - Windows:
+          - Overview: Windows/windows.md
+          - RDP: Windows/RDP/cannot-connect.md
+          - Active Directory: Windows/AD/locked.md
+          - Windows Update: Windows/Update/stuck.md
+          - SMB: Windows/SMB/access-denied.md
+  - Data Protection:
+      - Veeam:
+          - Overview: Veeam/veeam.md
+          - Backup: Veeam/Backup/snapshot-fail.md
+          - Repository: Veeam/Repository/space.md
+          - Proxy: Veeam/Proxy/hotadd.md
+  - Infrastructure & DevOps:
+      - Others:
+          - Overview: Others/others.md
+          - Docker: Others/Docker/container-exit.md
+          - Nginx: Others/Nginx/502.md
+          - Databases: Others/DB/postgres.md
+          - Terraform: Others/Terraform/state-lock.md
+          - Ansible / cloud-init: Others/Cloud-init/network.md

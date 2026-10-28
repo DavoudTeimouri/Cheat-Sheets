@@ -1,5 +1,6 @@
-# Kubernetes Add-ons Troubleshooting
+# K8s add-ons Troubleshooting
 
+**Category:** Cloud-Native
 ## 1. Ingress-NGINX
 
 | Symptom | Check | Fix |

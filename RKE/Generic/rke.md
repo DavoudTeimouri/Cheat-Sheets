@@ -1,5 +1,6 @@
 # RKE Troubleshooting
 
+**Category:** Cloud-Native
 ## 1. Cluster creation fails (rke up)
 
 ```bash

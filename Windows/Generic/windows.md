@@ -1,5 +1,6 @@
 # Windows Troubleshooting
 
+**Category:** Operating System
 ## 1. RDP cannot connect
 
 - `mstsc` / Remote Desktop fails: service `TermService` stopped → `net start termsrvc` or `sc start TermService`

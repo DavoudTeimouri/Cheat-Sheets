@@ -1,5 +1,6 @@
 # Linux Troubleshooting
 
+**Category:** Operating System
 ## 1. System won't boot / hangs at boot
 
 | Symptom | Likely cause | Fix |

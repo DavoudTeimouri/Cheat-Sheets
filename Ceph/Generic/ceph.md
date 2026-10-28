@@ -1,5 +1,6 @@
 # Ceph Troubleshooting
 
+**Category:** Storage
 ## 1. Cluster health: HEALTH_WARN / HEALTH_ERR
 
 ```bash

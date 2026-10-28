@@ -1,5 +1,6 @@
 # Rancher Troubleshooting
 
+**Category:** Cloud-Native
 ## 1. Rancher server won't start / crash loop
 
 ```bash

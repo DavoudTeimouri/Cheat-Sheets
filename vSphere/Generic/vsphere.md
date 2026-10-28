@@ -1,5 +1,6 @@
 # vSphere Troubleshooting
 
+**Category:** Virtualization
 ## 1. ESXi host unreachable / disconnected in vCenter
 
 ```bash
