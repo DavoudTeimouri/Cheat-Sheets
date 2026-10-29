@@ -45,7 +45,19 @@ nav:
           - Storage: Kubernetes/Storage/pvc.md
           - Nodes: Kubernetes/Nodes/notready.md
           - Control plane: Kubernetes/Control-plane/etcd.md
-      - K8s add-ons: K8s-Addons/k8s-addons.md
+      - K8s add-ons:
+          - Overview: K8s-Addons/k8s-addons.md
+          - Ingress: K8s-Addons/Ingress/ingress-nginx.md
+          - Certificate: K8s-Addons/CertManager/cert-manager.md
+          - Metrics: K8s-Addons/Metrics/metrics-server.md
+          - DNS: K8s-Addons/CoreDNS/coredns.md
+          - External DNS: K8s-Addons/ExternalDNS/external-dns.md
+          - Monitoring: K8s-Addons/Monitoring/prometheus-grafana.md
+          - Logging: K8s-Addons/Logging/fluentbit.md
+          - GitOps: K8s-Addons/GitOps/argocd.md
+          - Identity: K8s-Addons/Identity/keycloak.md
+          - LoadBalancer: K8s-Addons/LoadBalancer/metallb.md
+          - CSI: K8s-Addons/CSI/csi.md
       - Rancher:
           - Overview: Rancher/rancher.md
           - Server: Rancher/Server/startup.md
@@ -71,6 +83,8 @@ nav:
           - RBD: Ceph/RBD/rbd-map.md
           - CephFS: Ceph/MDS/mds-down.md
           - RGW: Ceph/RGW/rgw-down.md
+          - Rook-Ceph: Ceph/Rook/rook-ceph.md
+          - CSI: Ceph/CSI/csi.md
   - Operating System:
       - Linux:
           - Overview: Linux/linux.md

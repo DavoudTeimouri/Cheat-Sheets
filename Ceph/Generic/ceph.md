@@ -1,6 +1,14 @@
 # Ceph Troubleshooting
 
 **Category:** Storage
+
+## Subgroups
+
+| Subgroup | Sheet | Covers |
+|----------|-------|--------|
+| Rook-Ceph | [Rook/rook-ceph.md](Rook/rook-ceph.md) | Rook-Ceph operator, cluster, MON/OSD/MDS |
+| CSI | [CSI/csi.md](CSI/csi.md) | Ceph CSI provisioner, attach, resize |
+
 ## 1. Cluster health: HEALTH_WARN / HEALTH_ERR
 
 ```bash

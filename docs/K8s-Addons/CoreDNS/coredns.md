@@ -1,0 +1,1 @@
+../../../K8s-Addons/CoreDNS/coredns.md
