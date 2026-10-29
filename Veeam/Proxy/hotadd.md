@@ -12,5 +12,22 @@
 - Replica VM missing: target datastore space, ESXi license limits, target VM powered on with snapshots
 - Seed drive: ensure seed VM disks are in correct folder and datastore, checksum matches
 
+## Proxy / transport modes
+
+- HotAdd failed → proxy lacks SCSI controller access, independent disks, VAAI off → fall back to NBD/NBDSSL
+- NBDSSL slow → add proxies, enable LAN-free, check 10 Gb network
+- Direct SAN/NFS → storage must present LUNs/NFS to proxy, zoning correct, `vmhba` sees LUN
+
+## Backup copy / replication
+
+- WAN acceleration cache full → clear cache, check `VssSvc` on target
+- Replica VM missing → target datastore space, ESXi license limits, target VM powered on with snapshots
+- Seed drive → seed VM disks in correct folder/datastore, checksum matches
+
+## Safety
+
+- `VssSvc` restart on replication target interrupts application-consistent processing.
+
 ---
+
 <ponytail: Scope ceiling — proxy transport modes + replication only; add vSphere tags-based backup and storage integration when those features are used.</ponytail>

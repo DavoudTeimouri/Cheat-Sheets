@@ -30,5 +30,34 @@ ceph mon remove <bad-mon-id>
 - Always verify quorum (`ceph quorum_status`) before removing any mon
 - New mon needs `ceph.conf` mon entries and keyring
 
+## MON deep dive
+
+```bash
+ceph mon stat
+ceph quorum_status
+ceph mon dump
+chronyc tracking
+```
+- Mon down → check `ceph-mon` service, `/var/lib/ceph/mon/ceph-<id>/store.db`, `ceph.conf` mon addresses, firewall ports 6789/3300
+- No quorum → fewer than majority of mons up; bring monitors back one at a time
+- Rogue mon → `ceph mon remove <bad-mon-id>`
+- Adding mon → `ceph mon add <new-mon> <ip>`, then verify quorum
+
+## MON verification
+
+```bash
+#!/bin/bash
+set -u
+echo "== mon stat =="; ceph mon stat 2>/dev/null || true
+echo "== quorum =="; ceph quorum_status 2>/dev/null || true
+echo OK
+```
+
+## Safety
+
+- Never remove more than one mon at a time while below quorum.
+- `store.db` corruption → delete and re-add mon, or recover from another mon's data.
+
 ---
+
 <ponytail: Scope ceiling — MON layer only; add Cephadm mon deployment and multi-DC mon stretched clusters when adopted.</ponytail>

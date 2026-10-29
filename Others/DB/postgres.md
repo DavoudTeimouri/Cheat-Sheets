@@ -48,4 +48,63 @@ journalctl -u elasticsearch
 - Circuit breaker: heap too small, `indices.breaker.total.limit`, raise JVM heap (`jvm.options`, max 50% RAM, <= 31 GB for compressed oops)
 
 ---
+## Databases deep dive
+
+```bash
+# PostgreSQL
+pg_isready
+systemctl status postgresql
+tail -f /var/log/postgresql/*.log
+su - postgres -c "psql -c 'select pg_is_in_recovery();'"
+
+# MySQL/MariaDB
+mysqladmin ping
+systemctl status mariadb
+tail -f /var/log/mariadb/mariadb.log
+```
+- Won't start → disk full (`df -h /var/lib/pgsql` or `/var/lib/mysql`), corrupt InnoDB (`innodb_force_recovery`), config syntax error
+- Slow queries → `EXPLAIN ANALYZE`, missing indexes, `work_mem`/`shared_buffers` too small
+- Too many connections → `max_connections` hit; connection pooler (PgBouncer), close idle app connections
+
+## Redis
+
+```bash
+redis-cli ping
+redis-cli info memory
+redis-cli monitor
+tail -f /var/log/redis/redis.log
+```
+- OOMKilled → `maxmemory-policy` allkeys-lru or volatile-lru, raise `maxmemory`, or add RAM
+- Cannot bind port → another process on 6379 (`ss -tlnp \| grep 6379`), protected-mode blocks remote access without bind/auth
+
+## Elasticsearch / OpenSearch
+
+```bash
+curl -s localhost:9200/_cluster/health?pretty
+curl -s localhost:9200/_cat/nodes?v
+curl -s localhost:9200/_cat/shards?v
+journalctl -u elasticsearch
+```
+- Red cluster → unassigned shards — disk full (`flood_stage`), node down, replica allocation blocked (`cluster.routing.allocation.disk.threshold_enabled`)
+- Yellow → replica unassigned — single node cluster, add nodes or set `number_of_replicas: 0`
+- Circuit breaker → heap too small, `indices.breaker.total.limit`; raise JVM heap (`jvm.options`, max 50% RAM, <= 31 GB for compressed oops)
+
+## Verification
+
+```bash
+#!/bin/bash
+set -u
+echo "== postgres =="; pg_isready 2>/dev/null || true
+echo "== mysql =="; mysqladmin ping 2>/dev/null || true
+echo "== redis =="; redis-cli ping 2>/dev/null || true
+echo "== elasticsearch =="; curl -s -o /dev/null -w '%{http_code}' localhost:9200 2>/dev/null || true
+echo OK
+```
+
+## Safety
+
+- `innodb_force_recovery` is a last resort; set to 1 first, increase only if needed.
+
+---
+
 <ponytail: Scope ceiling — PostgreSQL/MySQL/Redis/Elasticsearch basics only; add Oracle, SAP HANA, and MongoDB when those databases run.</ponytail>
