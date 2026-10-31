@@ -25,5 +25,9 @@ Use the **New troubleshooting entry** issue template on this repo, or send a PR 
 | Operating System | Windows | `Windows/Generic/windows.md` |
 | Data Protection | Veeam | `Veeam/Generic/veeam.md` |
 | Infrastructure & DevOps | Others | `Others/Generic/others.md` |
+| Hardware | Overview | `Hardware/Generic/hardware.md` |
+| Hardware | Out-of-band | `Hardware/OOB/oob.md` |
+| Hardware | RAID controllers | `Hardware/RAID/raid.md` |
+| Hardware | SMART | `Hardware/SMART/smart.md` |
 
 Each topic has an overview page (`<Topic>/Generic/<topic>.md`) plus detailed subgroup sheets (`<Topic>/<Subgroup>/<subtopic>.md`). Every sheet carries its category and follows: symptom → likely cause → fix (commands), log locations, quick self-check, and a `ponytail:` scope ceiling.

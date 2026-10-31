@@ -1,0 +1,1 @@
+../../../Hardware/SMART/smart.md

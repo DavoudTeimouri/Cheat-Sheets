@@ -1,0 +1,1 @@
+../../Hardware/Generic/hardware.md
