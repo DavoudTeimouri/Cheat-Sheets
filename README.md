@@ -17,6 +17,9 @@ Use the **New troubleshooting entry** issue template on this repo, or send a PR 
 | Cloud-Native | Rancher | `Rancher/Generic/rancher.md` |
 | Cloud-Native | RKE | `RKE/Generic/rke.md` |
 | Virtualization | vSphere | `vSphere/Generic/vsphere.md` |
+| Virtualization | KVM | `KVM/Generic/kvm.md` |
+| Virtualization | Proxmox VE | `Proxmox-VE/Generic/proxmox-ve.md` |
+| Virtualization | Proxmox Backup | `Proxmox-Backup/Generic/proxmox-backup.md` |
 | Storage | Ceph | `Ceph/Generic/ceph.md` |
 | Operating System | Linux | `Linux/Generic/linux.md` |
 | Operating System | Windows | `Windows/Generic/windows.md` |

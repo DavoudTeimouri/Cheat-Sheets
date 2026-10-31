@@ -75,6 +75,23 @@ nav:
           - VM: vSphere/VM/power-on.md
           - vCenter: vSphere/vCenter/server-down.md
           - Storage: vSphere/Storage/datastore-full.md
+      - KVM:
+          - Overview: KVM/kvm.md
+          - Host: KVM/Host/host-setup.md
+          - VM: KVM/VM/vm-lifecycle.md
+          - Network: KVM/Network/networking.md
+          - Storage: KVM/Storage/storage.md
+      - Proxmox-VE:
+          - Overview: Proxmox-VE/proxmox-ve.md
+          - Host: Proxmox-VE/Host/host.md
+          - VM: Proxmox-VE/VM/vm.md
+          - Storage: Proxmox-VE/Storage/storage.md
+          - Cluster: Proxmox-VE/Cluster/cluster.md
+      - Proxmox-Backup:
+          - Overview: Proxmox-Backup/proxmox-backup.md
+          - Server: Proxmox-Backup/Server/server.md
+          - Client: Proxmox-Backup/Client/client.md
+          - Restore: Proxmox-Backup/Restore/restore.md
   - Storage:
       - Ceph:
           - Overview: Ceph/ceph.md
