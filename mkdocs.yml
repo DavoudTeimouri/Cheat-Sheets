@@ -68,6 +68,12 @@ nav:
           - Install: RKE/Install/ssh-fail.md
           - Nodes: RKE/Nodes/notready.md
           - Etcd: RKE/Etcd/snapshot.md
+      - OpenShift:
+          - Overview: OpenShift/openshift.md
+          - Cluster: OpenShift/Cluster/cluster.md
+          - Storage: OpenShift/Storage/storage.md
+          - Network: OpenShift/Network/network.md
+          - Operators: OpenShift/Operators/operators.md
   - Virtualization:
       - vSphere:
           - Overview: vSphere/vsphere.md

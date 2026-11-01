@@ -14,6 +14,7 @@ Use the **New troubleshooting entry** issue template on this repo, or send a PR 
 |----------|-------|-------|
 | Cloud-Native | Kubernetes | `Kubernetes/Generic/kubernetes.md` |
 | Cloud-Native | K8s add-ons | `K8s-Addons/Generic/k8s-addons.md` |
+| Cloud-Native | OpenShift | `OpenShift/Generic/openshift.md` |
 | Cloud-Native | Rancher | `Rancher/Generic/rancher.md` |
 | Cloud-Native | RKE | `RKE/Generic/rke.md` |
 | Virtualization | vSphere | `vSphere/Generic/vsphere.md` |
