@@ -116,4 +116,27 @@ echo OK
 
 ---
 
+## Verified solutions from web docs (official Ceph docs)
+
+### OSD down / out
+- `ceph health detail` reports `HEALTH_WARN 1/3 in osds are down` with `osd.N is down since epoch X, last address <ip>`. Restart: `systemctl restart ceph-FSID@osd.N.service` (cephadm: `ceph orch daemon start osd.N`).
+- If `ceph-osd` won't start: verify data/journal partitions mounted (`ceph-volume lvm list`), check for missing keyring (`ERROR: missing keyring`), corrupt superblock (`ERROR: unable to open OSD superblock`), `EIO` = disk failure → replace disk. `FAILED assert(0 == "hit suicide timeout")` → open support ticket.
+- `dmesg` for filesystem/disk errors. On high-OSD-count nodes, check `kernel.pid_max` (default 32768; raise to `4194303` if hitting thread limit during recovery).
+- `nf_conntrack` table full → mysterious intermittent connection failures; raise `nf_conntrack_max` and `nf_conntrack_buckets` (`buckets × 8 = max`).
+
+### OSD flapping
+- OSDs repeatedly marked down/up → private network failure or scrubbing/recovery taking too long. Freeze with `ceph osd set noup` / `ceph osd set nodown` (clears with `unset`), then fix network or wait for scrub/recovery to finish.
+
+### PGs stuck
+- Identify stuck PGs: `ceph pg dump_stuck [unclean|inactive|stale|undersized|degraded]`.
+- `unclean` = replicas diverged (recovering). `inactive` = waiting for primary OSD with latest data. `stale` = primary OSD down, no recent stats. `degraded` = fewer replicas than desired.
+- `PG_DAMAGED` / `OSD_SCRUB_ERRORS` at `HEALTH_ERR` = inconsistent replicas; needs repair.
+
+### Cluster full / nearfull
+- `nearfull` (85%) → delete data, add OSDs/disks. `full` (95%) → writes blocked; free space immediately (delete snapshots, trim RBD, lower retention) or add capacity.
+- Skewed pools waste space — check `max_avail` vs `bytes_used` in `ceph df`.
+
+### Network
+- `netstat -a \| grep ceph`, `netstat -s` for stats. Private network failure while public works → OSDs mark each other down/up (flapping). Use `noup`/`nodown` to freeze states during diagnosis.
+
 <ponytail: Scope ceiling — OSD + PG + CRUSH layers; add BlueStore/rocksdb tuning and cephadm OSD orchestration when adopted.</ponytail>

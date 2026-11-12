@@ -53,4 +53,24 @@ kubectl get cluster -A
 
 ---
 
+## Verified solutions from web docs (Rancher)
+
+### Cluster registration (cluster agent / rke2 / k3s)
+- **`Failed to connect to proxy` / connection refused** — node can't reach Rancher server URL on TCP 443. Fix: `curl -vkI https://<rancher-url>`, `nc -zv <rancher> 443`, open firewall.
+- **`x509: certificate signed by unknown authority`** — CA cert not trusted. Fix: get `CATTLE_CA_CHECKSUM` from Rancher `cacerts` setting, or set `CATTLE_CA_CHECKSUM` env on agent; for self-signed use `--insecure-skip-server-verification`.
+- **`token is invalid`** — registration command stale/wrong cluster/token revoked. Fix: copy a fresh registration command from the cluster UI; don't reuse across clusters.
+- **`node already exists`** — duplicate hostname/node name. Fix: `kubectl delete node <name>` or rename hostname (`hostnamectl set-hostname`).
+- **`node already exists` / clone VM** — cloned VM has same `/var/lib/rancher/state`. Fix: `rm -rf /var/lib/rancher/state; docker rm -fv rancher-agent; docker rm -fv rancher-agent-state`, then re-register.
+- **Agent fails DNS check (`127.0.0.1` / localhost)** — `/etc/resolv.conf` points to dnsmasq loopback; containers can't reach it. Fix: specify real DNS servers for Docker or disable dnsmasq.
+- **Host Registration URL** → `curl -i <url>/v1` should return `401` (auth on) or `200` (auth off). Both HTTP and WebSocket (`ws://`) must work; if behind a proxy/LB, ensure WebSocket passthrough.
+- **OpenSSL `tlsv1 alert internal error`** — searchlist domain appended to Rancher URL (e.g. `.standby`). Fix: remove the searchlist domain or use a domain not in searchlist.
+- **Swap enabled** — kubelet won't start with swap unless configured otherwise. Fix: `swapoff -a`, remove swap from `/etc/fstab`.
+- **br_netfilter / bridge-nf-call-iptables** — CNI traffic not reaching iptables. Fix: `modprobe br_netfilter`, `sysctl net.bridge.bridge-nf-call-iptables=1`.
+
+### Node-level connectivity
+- RKE2 agents join supervisor on **9345**, control-plane **6443**; K3s agents join **6443**. Test with `nc -zv <host> <port>`.
+- Check `iptables -L INPUT -n -v | grep DROP` or `firewall-cmd --list-all`.
+- `cattle-cluster-agent` pod in `cattle-system` must be `Running` with low restart count; check `kubectl logs -n cattle-system -l app=cattle-cluster-agent --previous`.
+- RBAC `forbidden: User 'system:serviceaccount:cattle-system:cattle'` → force agent redeploy: `kubectl annotate clusters.management.cattle.io <cluster-id> io.cattle.agent.force.deploy=true`.
+
 <ponytail: Scope ceiling — cluster registration + node provisioning only; add Fleet GitOps, Harvester, and Longhorn when those are in the stack.</ponytail>

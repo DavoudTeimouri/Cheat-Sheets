@@ -98,4 +98,30 @@ echo OK
 
 ---
 
+## Verified solutions from web docs (Google GKE, Bitnami)
+
+### CrashLoopBackOff (verified causes)
+- **OOMKilled / resource exhaustion** — `kubectl describe pod` shows `Reason: OOMKilled`. Fix: raise `resources.limits.memory`, add node RAM, or tune `vm.swappiness`.
+- **Liveness probe failure** — default `failureThreshold: 3`; probe timeout kills container. Fix: check `httpGet` path/port, `exec` command exists and returns 0, raise `initialDelaySeconds`/`timeoutSeconds`/`failureThreshold`, fix probe resource consumption.
+- **Misconfigured app / non-zero exit code** — inspect `kubectl logs <pod> --previous`. Exit code `0` means entrypoint isn't a persistent process (e.g. `["/bin/bash"]` exits immediately — use `sleep infinity` or a real server). Non-zero = config/env/dependency/auth failure.
+- **Uncontrolled image updates (`:latest`)** — use immutable tags/digests (`sha256:...`) in production.
+- **External service unavailable / auth failure** — `401 Unauthorized` / `403 Forbidden`; check service account IAM roles and credentials.
+- **Timeouts** — app waits on unreachable external service; test from pod with `curl`/`nc`.
+
+### ImagePullBackOff / ErrImagePull (verified causes)
+- Image name/tag typo or image deleted → `docker pull ` manually on the node to confirm.
+- `imagePullSecrets` missing/invalid → create/update `kubernetes.io/dockerconfigjson` secret, reference in ServiceAccount `imagePullSecrets`.
+- Registry DNS lookup failure / `i/o timeout` / `Too Many Requests` (Docker Hub rate limit) → fix DNS, use a mirror/ACR/GA, or push to a private registry.
+- `registryPullQPS`/`registryBurst` rate-limited on kubelet → tune node pool kubelet config.
+- `no space left on device` on node → resize disk, prune images, set `imageGCHighThresholdPercent`.
+
+### Exit code quick reference
+| Exit code | Meaning | Fix |
+|-----------|---------|-----|
+| `0` | Clean exit — entrypoint isn't persistent | Give container a long-running process (`sleep infinity`, web server) |
+| `1` | Generic application error | Read `docker logs`/`kubectl logs --previous` |
+| `126` | Command not executable | Check image entrypoint permissions/arch |
+| `127` | Command not found | Fix image path/typo |
+| `137` | Killed by SIGKILL (OOM) | Raise memory limit, add RAM, fix app leak |
+
 <ponytail: Scope ceiling — pod lifecycle only; add sidecars, init containers, and ephemeral containers when those patterns are used.</ponytail>
