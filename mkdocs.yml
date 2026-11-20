@@ -112,6 +112,7 @@ nav:
       - Linux:
           - Overview: Linux/linux.md
           - Network: Linux/Network/ssh.md
+          - Temp IP/DNS: Linux/Network/temp-ip-dns.md
           - Storage: Linux/Storage/disk-full.md
           - Memory: Linux/Memory/oom.md
           - Systemd: Linux/Systemd/service-fails.md
