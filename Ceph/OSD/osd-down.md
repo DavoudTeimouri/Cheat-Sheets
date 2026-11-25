@@ -25,12 +25,6 @@ ceph pg <pgid> stat
 - `stale`: no OSD reported the PG recently — OSDs down or network cut
 - `recovery_unfound`: objects without complete copies — mark unfound lost only after confirming data loss is acceptable
 
-Backfill tuning:
-```bash
-ceph tell osd.* injectargs --osd-max-backfills 8
-ceph osd pool set <pool> size 3
-```
-
 ## 3. Cluster full / nearfull
 
 ```bash
@@ -79,14 +73,91 @@ ceph pg <pgid> stat
 - `stale` → no OSD reported PG recently; OSDs down or network cut
 - `recovery_unfound` → objects without complete copies; mark unfound lost only after confirming data loss acceptable
 
-## Backfill tuning
+## 5. Backfill / recovery troubleshooting
+
+**Category:** Storage  
+**Applies to:** Ceph (RADOS pools), any pool type (replicated or erasure-coded)
+
+### Symptom → Cause → Fix
+
+| Exact symptom | Likely cause | Fix |
+|---------------|--------------|-----|
+| `recovery` % stuck / not progressing | Fewer OSDs than `size`, OSD down/out, backfill throttled, network saturation | `ceph osd stat`, `ceph osd tree`, add OSDs or mark down OSDs `in`, raise `osd_recovery_max_active` |
+| `backfill` % stuck / not progressing | Pool newly created / CRUSH weight changed, target OSDs full or flapping | `ceph osd df`, `ceph osd tree`, add capacity, `ceph osd reweight` carefully |
+| `recovery_unfound` / objects unfound | Object has no complete copy across replicas | `ceph pg <pgid> query`, confirm data loss acceptable, `ceph pg <pgid> mark_unfound_lost delete` |
+| `backfill_toofull` / pool nearfull during backfill | Destination pool nearfull (85%) / full (95%) | `ceph df`, `ceph osd df`, delete data or add OSDs, pause backfill temporarily |
+| Backfill storm (many OSDs recovering at once) | CRUSH weight changed too much, many OSDs marked `in` simultaneously | `ceph osd reweight` gradually, `ceph tell osd.* injectargs --osd-recovery-max-chunks 1`, throttle backfills |
+| Recovery / backfill slow | `osd_recovery_max_active` too low, `osd_max_backfills` too low, disk/network saturated | `ceph tell osd.* injectargs --osd-recovery-max-chunks 8`, `ceph tell osd.* injectargs --osd-max-backfills 8`, `iostat -x 1` |
+
+### Diagnosis
 
 ```bash
+# Cluster health and recovery state
+ceph health detail
+ceph -s
+ceph recovery status
+
+# PG states
+ceph pg dump pgs | awk '{print $2, $10, $14}' | sort | uniq -c
+ceph pg dump_stuck [unclean|inactive|stale|undersized|degraded]
+
+# Per-PG detail
+ceph pg <pgid> query
+ceph pg <pgid> stat
+
+# OSD state
+ceph osd stat
+ceph osd tree
+ceph osd dump | grep -i down
+
+# Pool capacity
+ceph df
+ceph osd df
+
+# Recovery / backfill in-flight
+ceph recovery status
+```
+
+### Recovery / backfill tuning
+
+```bash
+# Speed up recovery (more concurrent recovery operations per OSD)
+ceph tell osd.* injectargs --osd-recovery-max-chunks 8
+ceph tell osd.* injectargs --osd-recovery-max-chunks 1   # throttle: one chunk at a time
+
+# Speed up backfill (more concurrent backfill operations)
 ceph tell osd.* injectargs --osd-max-backfills 8
+ceph tell osd.* injectargs --osd-max-backfills 1   # throttle
+
+# Pool replica count
 ceph osd pool set <pool> size 3
 ceph osd pool set <pool> min_size 2
+
+# CRUSH weight changes — do gradually, watch recovery% between changes
+ceph osd reweight <id> <weight>
 ```
-- CRUSH weight changed too much → backfill storm; adjust `osd_recovery_max_active`, watch `ceph -s` recovery% between changes
+
+### Verification
+
+```bash
+#!/bin/bash
+set -u
+echo "== health =="; ceph health detail 2>/dev/null || true
+echo "== recovery =="; ceph recovery status 2>/dev/null || true
+echo "== pg states =="; ceph pg dump pgs | awk '{print $2, $10, $14}' | sort | uniq -c || true
+echo "== osd tree =="; ceph osd tree 2>/dev/null || true
+echo "== pool df =="; ceph osd df 2>/dev/null || true
+echo OK
+```
+
+### Safety
+
+- Marking an OSD `in` triggers recovery/rebalancing; don't mark multiple failing disks `in` at once (backfill storm).
+- Raising `osd_recovery_max_active` / `osd_max_backfills` increases cluster load and can impact client I/O; raise incrementally and monitor `ceph -s`.
+- `ceph osd pool set <pool> size 1` risks data loss on single failure; only for temporary shrink.
+- `ceph pg <pgid> mark_unfound_lost delete` permanently deletes objects with no complete copy — confirm data loss is acceptable first.
+
+---
 
 ## Cluster full / nearfull
 
