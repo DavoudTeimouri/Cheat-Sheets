@@ -159,26 +159,84 @@ echo OK
 
 ---
 
-## Cluster full / nearfull
+## OSD / pool fullness (nearfull / backfillfull / full)
+
+**Category:** Storage  
+**Applies to:** Ceph OSDs and pools (replicated and erasure-coded)
+
+Ceph enforces three ascending per-OSD capacity thresholds. The order **must** stay `nearfull` < `backfillfull` < `full` < `failsafe_full`; otherwise `OSD_OUT_OF_ORDER_FULL` fires.
+
+| Health check | Default ratio | Effect |
+|--------------|---------------|--------|
+| `OSD_NEARFULL` | 0.85 (85%) | Early warning; backfill may be throttled |
+| `OSD_BACKFILLFULL` | 0.90 (90%) | OSD refuses new backfill reservations; recovery stalls |
+| `OSD_FULL` | 0.95 (95%) | All writes to the affected OSD's pools are blocked |
+
+PG flags:
+- `backfill_toofull` → `PG_BACKFILL_FULL` — target OSD above `backfillfull`; recovery cannot proceed.
+- `recovery_toofull` → `PG_RECOVERY_FULL` — target OSD above `full`; stricter than backfillfull.
+
+### Symptom → Cause → Fix
+
+| Exact symptom | Likely cause | Fix |
+|---------------|--------------|-----|
+| `HEALTH_WARN OSD_NEARFULL` / `osd.N is near full at 87%` | OSD above `nearfull_ratio` (default 0.85) | `ceph osd df` — identify full OSD; delete data or add OSD/disk |
+| `HEALTH_WARN OSD_BACKFILLFULL` / `osd.N is backfillfull at 91%` | OSD above `backfillfull_ratio` (default 0.90); backfill refused | `ceph osd df` — find full OSD; delete data, add OSD, or temporarily `ceph osd set-backfillfull-ratio <ratio>` (emergency only, restore default ASAP) |
+| `HEALTH_ERR OSD_FULL` / `osd.N is full at 96%` | OSD above `full_ratio` (default 0.95); writes blocked | Free space immediately: delete snapshots, trim RBD, lower retention, add OSD |
+| `PG_BACKFILL_FULL` / PG in `backfill_toofull` | Target OSD above `backfillfull`; recovery cannot proceed | Same as OSD_BACKFILLFULL — free space on target OSD |
+| `PG_RECOVERY_FULL` / PG in `recovery_toofull` | Target OSD above `full` (stricter than backfillfull) | Free space immediately on target OSD |
+| `OSD_OUT_OF_ORDER_FULL` | Thresholds not ascending (`nearfull` < `backfillfull` < `full` < `failsafe_full`) | Fix ratios: `ceph osd set-nearfull-ratio <ratio>; ceph osd set-backfillfull-ratio <ratio>; ceph osd set-full-ratio <ratio>` |
+
+### Diagnosis
 
 ```bash
+# Cluster health
+ceph health detail
+
+# Overall usage
 ceph df
 ceph osd df
-df -h /var/lib/ceph/osd/*
-```
-- `nearfull` (85%) → delete data, add OSDs/disks
-- `full` (95%) → writes blocked; free space immediately (delete snapshots, trim RBD, lower retention) or add capacity
-- Skewed pools waste space → check `max_avail` vs `bytes_used` in `ceph df`
 
-## Verification
+# Per-OSD utilization (find the full one)
+ceph osd df tree
+ceph osd df | sort -k5 -rn | head
+
+# Configured ratios
+ceph osd dump | grep -E 'full_ratio|nearfull_ratio|backfillfull_ratio'
+
+# Stuck PGs
+ceph pg dump_stuck backfill_toofull
+ceph pg dump_stuck recovery_toofull
+```
+
+### Adjusting ratios (emergency only)
+
+```bash
+# View current values
+ceph osd dump | grep -E 'full_ratio|nearfull_ratio|backfillfull_ratio'
+
+# Temporary increase — restore default ASAP to reduce instability risk
+ceph osd set-backfillfull-ratio 0.92
+ceph osd set-full-ratio 0.96
+ceph osd set-nearfull-ratio 0.88
+```
+
+### Verification
 
 ```bash
 #!/bin/bash
 set -u
-echo "== health =="; ceph health detail 2>/dev/null || true
-echo "== osd tree =="; ceph osd tree 2>/dev/null || true
+echo "== health detail =="; ceph health detail 2>/dev/null || true
+echo "== osd df =="; ceph osd df 2>/dev/null || true
+echo "== pool df =="; ceph df 2>/dev/null || true
+echo "== ratios =="; ceph osd dump 2>/dev/null | grep -E 'full_ratio|nearfull_ratio|backfillfull_ratio' || true
 echo OK
 ```
+
+### Safety
+
+- Changing `full_ratio` / `backfillfull_ratio` reduces the safety margin that prevents OSDs from running out of usable space. Treat as emergency breathing room, not the repair; restore defaults after adding capacity or deleting data.
+- Free space first: delete snapshots, trim RBD, lower retention, delete known-disposable data before touching ratios.
 
 ## Safety
 
@@ -202,10 +260,6 @@ echo OK
 - Identify stuck PGs: `ceph pg dump_stuck [unclean|inactive|stale|undersized|degraded]`.
 - `unclean` = replicas diverged (recovering). `inactive` = waiting for primary OSD with latest data. `stale` = primary OSD down, no recent stats. `degraded` = fewer replicas than desired.
 - `PG_DAMAGED` / `OSD_SCRUB_ERRORS` at `HEALTH_ERR` = inconsistent replicas; needs repair.
-
-### Cluster full / nearfull
-- `nearfull` (85%) → delete data, add OSDs/disks. `full` (95%) → writes blocked; free space immediately (delete snapshots, trim RBD, lower retention) or add capacity.
-- Skewed pools waste space — check `max_avail` vs `bytes_used` in `ceph df`.
 
 ### Network
 - `netstat -a \| grep ceph`, `netstat -s` for stats. Private network failure while public works → OSDs mark each other down/up (flapping). Use `noup`/`nodown` to freeze states during diagnosis.
