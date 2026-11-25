@@ -23,6 +23,91 @@ kubectl describe node <node> | grep -i taint
 - Pods not scheduling: node has taint without matching toleration
 - Node cordoned: no new pods scheduled → `kubectl uncordon`
 
+## 5. Node scheduling disabled (cordoned / tainted)
+
+**Category:** Cloud-Native
+
+## Symptom → Cause → Fix
+
+| Exact symptom | Likely cause | Fix |
+|---------------|--------------|-----|
+| `0/<n> nodes are available: <n> node(s) are unschedulable` | Node is cordoned (`kubectl cordon`) | `kubectl uncordon <node>` |
+| `0/<n> nodes are available: <n> node(s) had untolerated taint {node-role.kubernetes.io/control-plane: }` | Node has taint and pod has no matching toleration | Add toleration to pod spec, or remove taint from node |
+| `0/<n> nodes are available: <n> Insufficient cpu` / `Insufficient memory` | Node lacks free resources | Add nodes, reduce pod requests, or evict low-priority pods |
+| `0/<n> nodes are available: <n> node(s) match node selector` | `nodeSelector`/`nodeAffinity` doesn't match any node | Fix labels/affinity, or add label to node |
+| `Preempting` blocked by PDB | PriorityClass preemption blocked by PodDisruptionBudget | Adjust PDB `maxUnavailable`, or lower pod priority |
+
+## Diagnosis
+
+```bash
+# Node status and conditions
+kubectl get nodes
+kubectl describe node <node> | grep -iE 'taint|unschedulable|SchedulingDisabled|Ready'
+kubectl get node <node> -o jsonpath='{.spec.unschedulable}{"\n"}{.spec.taints}{"\n"}'
+
+# Events on failed pod
+kubectl describe pod <pod> -n <ns> | grep -iE '0/<n> node|FailScheduling|Taint|node selector'
+
+# Check node labels
+kubectl get node <node> --show-labels
+kubectl get nodes --show-labels
+
+# Check PodDisruptionBudgets
+kubectl get pdb -A
+kubectl describe pdb <pdb> -n <ns>
+```
+
+## Fix: uncordon a node
+
+```bash
+# Mark node schedulable again
+kubectl uncordon <node>
+
+# Verify
+kubectl get node <node>
+kubectl describe node <node> | grep -i unschedulable
+```
+
+## Fix: add toleration to pod
+
+```yaml
+tolerations:
+- key: "node-role.kubernetes.io/control-plane"
+  operator: "Exists"
+  effect: "NoSchedule"
+```
+
+```bash
+kubectl patch pod <pod> -n <ns> --type merge -p '{"spec":{"tolerations":[{"key":"node-role.kubernetes.io/control-plane","operator":"Exists","effect":"NoSchedule"}]}}'
+```
+
+## Fix: add node label
+
+```bash
+kubectl label node <node> <label-key>=<label-value>
+```
+
+## Verification
+
+```bash
+#!/bin/bash
+set -u
+NODE="${1:-}"
+POD="${2:-}"
+NS="${3:-default}"
+echo "== node schedulable =="; kubectl get node "$NODE" -o jsonpath='{.spec.unschedulable}' 2>/dev/null || true
+echo "== node taints =="; kubectl get node "$NODE" -o jsonpath='{.spec.taints}' 2>/dev/null || true
+echo "== pod events =="; kubectl describe pod "$POD" -n "$NS" 2>/dev/null | grep -iE '0/<n> node|FailScheduling|Taint|node selector' | head -5 || true
+echo OK
+```
+
+## Safety
+
+- `kubectl cordon` marks a node unschedulable but does NOT evict existing pods. Use `kubectl drain` if you intend to move pods off the node.
+- `kubectl drain` evicts all pods; only on nodes you intend to remove from service. `--delete-emptydir-data` destroys local ephemeral data; confirm first.
+- Removing a taint may allow unrelated pods to schedule on the node; verify the taint was intentional before removing.
+
+---
 ## 3. Kubelet eviction / node pressure
 
 ```bash

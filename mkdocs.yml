@@ -45,6 +45,7 @@ nav:
           - Storage: Kubernetes/Storage/pvc.md
           - Nodes: Kubernetes/Nodes/notready.md
           - Control plane: Kubernetes/Control-plane/etcd.md
+          - Kubeconfig: Kubernetes/Control-plane/kubeconfig.md
       - K8s add-ons:
           - Overview: K8s-Addons/k8s-addons.md
           - Ingress: K8s-Addons/Ingress/ingress-nginx.md

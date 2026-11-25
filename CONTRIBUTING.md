@@ -25,6 +25,30 @@ mkdocs.yml                   # site config + search
 
 The published site (GitHub Pages) has full-text search across every sheet — `/?q=` or the search bar in the header.
 
+## Offline version (air-gapped)
+
+The entire cheat-sheet site is available offline:
+
+1. On a machine with internet access, run:
+   ```bash
+   bash scripts/offline_pack.sh
+   ```
+   This builds the MkDocs site and creates `cheat-sheets-offline.tar.gz`.
+
+2. Copy `cheat-sheets-offline.tar.gz` to the offline machine (USB, scp, internal mirror).
+
+3. Extract and open:
+   ```bash
+   tar -xzf cheat-sheets-offline.tar.gz
+   # Option A: open directly in a browser
+   open site/index.html
+   # Option B: serve locally
+   cd site && python3 -m http.server 8000
+   # then open http://localhost:8000
+   ```
+
+The search bar works offline (built with MkDocs Material + Lunr.js, pre-built search index). No server or internet required.
+
 ## Site
 
 Enable GitHub Pages in the repo (Settings → Pages → source: GitHub Actions) once, then the deploy workflow above publishes on every push to `main`.
